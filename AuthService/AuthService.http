@@ -1,0 +1,79 @@
+### Auth Service API Tests
+
+# Base URL
+@baseUrl = http://localhost:5170
+
+### Register a new user
+# @name register
+POST {{baseUrl}}/api/Auth/register
+Content-Type: application/json
+
+{
+    "email": "user@example.com",
+    "password": "Password123!",
+    "confirmPassword": "Password123!",
+    "firstName": "John",
+    "lastName": "Doe",
+    "phoneNumber": "555-123-4567"
+}
+
+### Store token from registration response
+@authToken = {{register.response.body.token}}
+@refreshToken = {{register.response.body.refreshToken}}
+
+### Login
+# @name login
+POST {{baseUrl}}/api/Auth/login
+Content-Type: application/json
+
+{
+    "email": "user@example.com",
+    "password": "Password123!"
+}
+
+### Store token from login response
+@authToken = {{login.response.body.token}}
+@refreshToken = {{login.response.body.refreshToken}}
+
+### Get User Profile
+GET {{baseUrl}}/api/User/profile
+Authorization: Bearer {{authToken}}
+
+### Update User Profile
+PUT {{baseUrl}}/api/User/profile
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "firstName": "John Updated",
+    "lastName": "Doe Updated",
+    "phoneNumber": "555-987-6543"
+}
+
+### Change Password
+PUT {{baseUrl}}/api/User/change-password
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "currentPassword": "Password123!",
+    "newPassword": "NewPassword456!",
+    "confirmPassword": "NewPassword456!"
+}
+
+### Refresh Token
+# @name refreshTokenRequest
+POST {{baseUrl}}/api/Auth/refresh-token
+Content-Type: application/json
+
+{
+    "refreshToken": "{{refreshToken}}"
+}
+
+### Store new token from refresh response
+@authToken = {{refreshTokenRequest.response.body.token}}
+@refreshToken = {{refreshTokenRequest.response.body.refreshToken}}
+
+### Logout
+POST {{baseUrl}}/api/Auth/logout
+Authorization: Bearer {{authToken}}
