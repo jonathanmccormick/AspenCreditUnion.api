@@ -13,6 +13,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 
     public DbSet<RefreshToken> RefreshTokens { get; set; }
     public DbSet<RevokedToken> RevokedTokens { get; set; }
+    public DbSet<ActiveToken> ActiveTokens { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -32,6 +33,16 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             entity.HasKey(e => e.Id);
             entity.Property(e => e.JwtId).IsRequired();
             entity.HasIndex(e => e.JwtId);
+        });
+        
+        // Configure ActiveToken
+        builder.Entity<ActiveToken>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.JwtId).IsRequired();
+            entity.Property(e => e.UserId).IsRequired();
+            entity.HasIndex(e => e.JwtId);
+            entity.HasIndex(e => e.UserId);
         });
     }
 }

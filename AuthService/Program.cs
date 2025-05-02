@@ -42,6 +42,9 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 // Register token validation service
 builder.Services.AddScoped<TokenValidationService>();
 
+// Register token cleanup background service
+builder.Services.AddHostedService<TokenCleanupService>();
+
 // Configure JWT Authentication
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 var secretKey = jwtSettings["SecretKey"] ?? 

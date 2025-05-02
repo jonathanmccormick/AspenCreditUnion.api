@@ -4,6 +4,7 @@ using System.Security.Cryptography;
 using System.Text;
 using AuthService.Data;
 using AuthService.Models;
+using AuthService.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -21,19 +22,22 @@ public class AuthController : ControllerBase
     private readonly IConfiguration _configuration;
     private readonly ApplicationDbContext _context;
     private readonly ILogger<AuthController> _logger;
+    private readonly TokenValidationService _tokenValidationService;
 
     public AuthController(
         UserManager<ApplicationUser> userManager,
         SignInManager<ApplicationUser> signInManager,
         IConfiguration configuration,
         ApplicationDbContext context,
-        ILogger<AuthController> logger)
+        ILogger<AuthController> logger,
+        TokenValidationService tokenValidationService)
     {
         _userManager = userManager;
         _signInManager = signInManager;
         _configuration = configuration;
         _context = context;
         _logger = logger;
+        _tokenValidationService = tokenValidationService;
     }
 
     [HttpPost("register")]
@@ -72,6 +76,23 @@ public class AuthController : ControllerBase
             // Generate JWT token
             var token = await GenerateJwtToken(user);
             var refreshToken = GenerateRefreshToken(user.Id);
+            
+            // Register the token in our whitelist
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var jwtToken = tokenHandler.ReadJwtToken(token);
+            var expiry = jwtToken.ValidTo;
+
+            // Get device info and IP address
+            var deviceInfo = Request.Headers["User-Agent"].ToString();
+            var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
+            
+            await _tokenValidationService.RegisterTokenAsync(
+                token,
+                user.Id,
+                expiry,
+                deviceInfo,
+                ipAddress
+            );
 
             return Ok(new AuthResponse
             {
@@ -127,6 +148,23 @@ public class AuthController : ControllerBase
             var token = await GenerateJwtToken(user);
             var refreshToken = GenerateRefreshToken(user.Id);
 
+            // Register the token in our whitelist
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var jwtToken = tokenHandler.ReadJwtToken(token);
+            var expiry = jwtToken.ValidTo;
+
+            // Get device info and IP address
+            var deviceInfo = Request.Headers["User-Agent"].ToString();
+            var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
+            
+            await _tokenValidationService.RegisterTokenAsync(
+                token,
+                user.Id,
+                expiry,
+                deviceInfo,
+                ipAddress
+            );
+
             return Ok(new AuthResponse
             {
                 Success = true,
@@ -178,7 +216,10 @@ public class AuthController : ControllerBase
             
             if (!string.IsNullOrEmpty(jwtId))
             {
-                // Add the token to the revoked tokens list
+                // Mark the token as used in our whitelist
+                await _tokenValidationService.MarkTokenAsUsedAsync(jwtId);
+                
+                // For backward compatibility, also add to revoked tokens
                 _context.RevokedTokens.Add(new RevokedToken
                 {
                     JwtId = jwtId,
@@ -244,6 +285,23 @@ public class AuthController : ControllerBase
         // Generate a new JWT token and refresh token
         var token = await GenerateJwtToken(user);
         var newRefreshToken = GenerateRefreshToken(user.Id);
+
+        // Register the new token in our whitelist
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var jwtToken = tokenHandler.ReadJwtToken(token);
+        var expiry = jwtToken.ValidTo;
+
+        // Get device info and IP address
+        var deviceInfo = Request.Headers["User-Agent"].ToString();
+        var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
+            
+        await _tokenValidationService.RegisterTokenAsync(
+            token,
+            user.Id,
+            expiry,
+            deviceInfo,
+            ipAddress
+        );
 
         return Ok(new AuthResponse
         {
@@ -314,5 +372,81 @@ public class AuthController : ControllerBase
         _context.SaveChanges();
 
         return refreshToken;
+    }
+
+    [Authorize]
+    [HttpGet("active-sessions")]
+    public async Task<IActionResult> GetActiveSessions()
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        
+        if (string.IsNullOrEmpty(userId))
+        {
+            return BadRequest(new { message = "Invalid token" });
+        }
+
+        var activeSessions = await _context.ActiveTokens
+            .Where(t => t.UserId == userId && !t.IsUsed && t.ExpiryDate > DateTime.UtcNow)
+            .Select(t => new
+            {
+                t.Id,
+                t.DeviceInfo,
+                t.IpAddress,
+                t.IssuedAt,
+                t.ExpiryDate
+            })
+            .ToListAsync();
+
+        return Ok(new { activeSessions });
+    }
+
+    [Authorize]
+    [HttpPost("revoke-session/{id}")]
+    public async Task<IActionResult> RevokeSession(int id)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        
+        if (string.IsNullOrEmpty(userId))
+        {
+            return BadRequest(new { message = "Invalid token" });
+        }
+
+        var session = await _context.ActiveTokens
+            .FirstOrDefaultAsync(t => t.Id == id && t.UserId == userId);
+
+        if (session == null)
+        {
+            return NotFound(new { message = "Session not found" });
+        }
+
+        session.IsUsed = true;
+        
+        // Also add to revoked tokens for backward compatibility
+        _context.RevokedTokens.Add(new RevokedToken
+        {
+            JwtId = session.JwtId,
+            RevocationDate = DateTime.UtcNow,
+            ExpiryDate = session.ExpiryDate
+        });
+
+        await _context.SaveChangesAsync();
+
+        return Ok(new { message = "Session revoked successfully" });
+    }
+
+    [Authorize]
+    [HttpPost("revoke-all-sessions")]
+    public async Task<IActionResult> RevokeAllSessions()
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        
+        if (string.IsNullOrEmpty(userId))
+        {
+            return BadRequest(new { message = "Invalid token" });
+        }
+
+        await _tokenValidationService.RevokeAllUserTokensAsync(userId);
+
+        return Ok(new { message = "All sessions revoked successfully" });
     }
 }
