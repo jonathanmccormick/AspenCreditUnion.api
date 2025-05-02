@@ -128,3 +128,12 @@ appsettings.*.json
 node_modules/
 .env
 .env.local
+AuthService/bin/Debug/net9.0/AuthService.dll
+AuthService/bin/Debug/net9.0/AuthService.pdb
+AuthService/obj/Debug/net9.0/AuthService.AssemblyInfo.cs
+AuthService/obj/Debug/net9.0/AuthService.AssemblyInfoInputs.cache
+AuthService/obj/Debug/net9.0/AuthService.csproj.CoreCompileInputs.cache
+AuthService/obj/Debug/net9.0/AuthService.dll
+AuthService/obj/Debug/net9.0/AuthService.pdb
+AuthService/obj/Debug/net9.0/ref/AuthService.dll
+AuthService/obj/Debug/net9.0/refint/AuthService.dll
