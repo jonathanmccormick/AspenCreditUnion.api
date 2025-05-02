@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  authservice:
+    build:
+      context: .
+      dockerfile: AuthService/Dockerfile
+    ports:
+      - "5000:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Data Source=/app/data/AuthService.db;
+      - ASPNETCORE_URLS=http://+:80
+      - DOTNET_USE_POLLING_FILE_WATCHER=1
+      - ASPNETCORE_LOGGING__CONSOLE__DISABLECOLORS=true
+      - ASPNETCORE_LOGGING__CONSOLE__FORMATTEROPTIONSSECTIONNAME=SIMPLEFORMATTEROPTIONS
+      - ASPNETCORE_LOGGING__CONSOLE__FORMATTERNAME=SIMPLE
+      - ASPNETCORE_LOGGING__CONSOLE__LOGTOSTDERRONFAILEDSTDOUT=true
+    volumes:
+      - db-data:/app/data
+      - dp-keys:/root/.aspnet/DataProtection-Keys
+
+volumes:
+  db-data:
+  dp-keys:
