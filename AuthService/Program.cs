@@ -23,9 +23,9 @@ var applyMigrations = args.Contains("--apply-migrations");
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? 
     throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
-// Add database context with SQLite
+// Add database context with SQL Server instead of SQLite
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlite(connectionString));
+    options.UseSqlServer(connectionString));
 
 // Add Identity
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>

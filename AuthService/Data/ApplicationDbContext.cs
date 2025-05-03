@@ -1,4 +1,5 @@
 using AuthService.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,19 +20,62 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
         base.OnModelCreating(builder);
         
+        // Configure Identity entities for SQL Server
+        builder.Entity<ApplicationUser>(entity => 
+        {
+            entity.Property(e => e.Id).HasMaxLength(450);
+        });
+        
+        builder.Entity<IdentityRole>(entity => 
+        {
+            entity.Property(e => e.Id).HasMaxLength(450);
+            entity.Property(e => e.Name).HasMaxLength(256);
+            entity.Property(e => e.NormalizedName).HasMaxLength(256);
+        });
+
+        builder.Entity<IdentityUserClaim<string>>(entity =>
+        {
+            entity.Property(e => e.UserId).HasMaxLength(450);
+        });
+
+        builder.Entity<IdentityUserRole<string>>(entity =>
+        {
+            entity.Property(e => e.UserId).HasMaxLength(450);
+            entity.Property(e => e.RoleId).HasMaxLength(450);
+        });
+
+        builder.Entity<IdentityUserLogin<string>>(entity =>
+        {
+            entity.Property(e => e.UserId).HasMaxLength(450);
+            entity.Property(e => e.LoginProvider).HasMaxLength(128);
+            entity.Property(e => e.ProviderKey).HasMaxLength(128);
+        });
+
+        builder.Entity<IdentityUserToken<string>>(entity =>
+        {
+            entity.Property(e => e.UserId).HasMaxLength(450);
+            entity.Property(e => e.LoginProvider).HasMaxLength(128);
+            entity.Property(e => e.Name).HasMaxLength(128);
+        });
+
+        builder.Entity<IdentityRoleClaim<string>>(entity =>
+        {
+            entity.Property(e => e.RoleId).HasMaxLength(450);
+        });
+        
         // Configure RefreshToken
         builder.Entity<RefreshToken>(entity =>
         {
             entity.HasKey(e => e.Id);
-            entity.Property(e => e.Token).IsRequired();
-            entity.Property(e => e.UserId).IsRequired();
+            entity.Property(e => e.Token).IsRequired().HasMaxLength(450);
+            entity.Property(e => e.UserId).IsRequired().HasMaxLength(450);
         });
 
         // Configure RevokedToken
         builder.Entity<RevokedToken>(entity =>
         {
             entity.HasKey(e => e.Id);
-            entity.Property(e => e.JwtId).IsRequired();
+            entity.Property(e => e.JwtId).IsRequired().HasMaxLength(450);
             entity.HasIndex(e => e.JwtId);
         });
         
@@ -39,8 +83,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         builder.Entity<ActiveToken>(entity =>
         {
             entity.HasKey(e => e.Id);
-            entity.Property(e => e.JwtId).IsRequired();
-            entity.Property(e => e.UserId).IsRequired();
+            entity.Property(e => e.JwtId).IsRequired().HasMaxLength(450);
+            entity.Property(e => e.UserId).IsRequired().HasMaxLength(450);
             entity.HasIndex(e => e.JwtId);
             entity.HasIndex(e => e.UserId);
         });

@@ -9,7 +9,7 @@ services:
       - "5000:80"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Data Source=/app/data/AuthService.db;
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=AuthDB;User Id=sa;Password=YourStrong@Passw0rd;TrustServerCertificate=True;
       - ASPNETCORE_URLS=http://+:80
       - DOTNET_USE_POLLING_FILE_WATCHER=1
       - ASPNETCORE_LOGGING__CONSOLE__DISABLECOLORS=true
@@ -17,9 +17,35 @@ services:
       - ASPNETCORE_LOGGING__CONSOLE__FORMATTERNAME=SIMPLE
       - ASPNETCORE_LOGGING__CONSOLE__LOGTOSTDERRONFAILEDSTDOUT=true
     volumes:
-      - db-data:/app/data
       - dp-keys:/root/.aspnet/DataProtection-Keys
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    restart: on-failure
+
+  sqlserver:
+    image: mcr.microsoft.com/azure-sql-edge:latest
+    cap_add:
+      - SYS_PTRACE
+    environment:
+      - ACCEPT_EULA=1
+      - MSSQL_SA_PASSWORD=YourStrong@Passw0rd
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver-data:/var/opt/mssql
+    deploy:
+      resources:
+        limits:
+          memory: 2GB
+    healthcheck:
+      test: /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "YourStrong@Passw0rd" -Q "SELECT 1" || exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: always
 
 volumes:
-  db-data:
   dp-keys:
+  sqlserver-data:
