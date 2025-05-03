@@ -13,7 +13,6 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     }
 
     public DbSet<RefreshToken> RefreshTokens { get; set; }
-    public DbSet<RevokedToken> RevokedTokens { get; set; }
     public DbSet<ActiveToken> ActiveTokens { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
@@ -69,14 +68,6 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Token).IsRequired().HasMaxLength(450);
             entity.Property(e => e.UserId).IsRequired().HasMaxLength(450);
-        });
-
-        // Configure RevokedToken
-        builder.Entity<RevokedToken>(entity =>
-        {
-            entity.HasKey(e => e.Id);
-            entity.Property(e => e.JwtId).IsRequired().HasMaxLength(450);
-            entity.HasIndex(e => e.JwtId);
         });
         
         // Configure ActiveToken

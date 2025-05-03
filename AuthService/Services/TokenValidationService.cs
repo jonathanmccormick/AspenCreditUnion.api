@@ -37,13 +37,6 @@ public class TokenValidationService
         return activeToken != null;
     }
 
-    // This method maintains backward compatibility with existing code
-    public async Task<bool> IsTokenRevokedAsync(string token)
-    {
-        // Invert the result from IsTokenValidAsync
-        return !(await IsTokenValidAsync(token));
-    }
-
     public async Task<ActiveToken> RegisterTokenAsync(string token, string userId, DateTime expiryDate, string? deviceInfo = null, string? ipAddress = null)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
@@ -103,17 +96,6 @@ public class TokenValidationService
         if (expiredActiveTokens.Any())
         {
             _context.ActiveTokens.RemoveRange(expiredActiveTokens);
-            await _context.SaveChangesAsync();
-        }
-
-        // Clean up expired revoked tokens (for backward compatibility)
-        var expiredRevokedTokens = await _context.RevokedTokens
-            .Where(rt => rt.ExpiryDate < DateTime.UtcNow)
-            .ToListAsync();
-
-        if (expiredRevokedTokens.Any())
-        {
-            _context.RevokedTokens.RemoveRange(expiredRevokedTokens);
             await _context.SaveChangesAsync();
         }
     }

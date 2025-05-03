@@ -218,14 +218,6 @@ public class AuthController : ControllerBase
             {
                 // Mark the token as used in our whitelist
                 await _tokenValidationService.MarkTokenAsUsedAsync(jwtId);
-                
-                // For backward compatibility, also add to revoked tokens
-                _context.RevokedTokens.Add(new RevokedToken
-                {
-                    JwtId = jwtId,
-                    RevocationDate = DateTime.UtcNow,
-                    ExpiryDate = expiry
-                });
             }
         }
 
@@ -420,14 +412,6 @@ public class AuthController : ControllerBase
         }
 
         session.IsUsed = true;
-        
-        // Also add to revoked tokens for backward compatibility
-        _context.RevokedTokens.Add(new RevokedToken
-        {
-            JwtId = session.JwtId,
-            RevocationDate = DateTime.UtcNow,
-            ExpiryDate = session.ExpiryDate
-        });
 
         await _context.SaveChangesAsync();
 
