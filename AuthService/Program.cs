@@ -10,6 +10,12 @@ using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Configure configuration to properly handle environment variables
+builder.Configuration.AddEnvironmentVariables();
+builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+    .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true)
+    .AddEnvironmentVariables();
+
 // Configure Kestrel to listen on all interfaces
 builder.WebHost.ConfigureKestrel(serverOptions =>
 {

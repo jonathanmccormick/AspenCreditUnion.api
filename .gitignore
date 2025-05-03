@@ -137,3 +137,4 @@ AuthService/obj/Debug/net9.0/AuthService.dll
 AuthService/obj/Debug/net9.0/AuthService.pdb
 AuthService/obj/Debug/net9.0/ref/AuthService.dll
 AuthService/obj/Debug/net9.0/refint/AuthService.dll
+.env
