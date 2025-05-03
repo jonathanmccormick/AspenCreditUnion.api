@@ -14,6 +14,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 
     public DbSet<RefreshToken> RefreshTokens { get; set; }
     public DbSet<ActiveToken> ActiveTokens { get; set; }
+    public DbSet<Account> Accounts { get; set; }
+    public DbSet<Loan> Loans { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -79,5 +81,75 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             entity.HasIndex(e => e.JwtId);
             entity.HasIndex(e => e.UserId);
         });
+        
+        // Configure Account hierarchy with TPH
+        builder.Entity<Account>()
+            .HasDiscriminator<string>("AccountType")
+            .HasValue<CheckingAccount>("CheckingAccount")
+            .HasValue<SavingsAccount>("SavingsAccount")
+            .HasValue<CertificateOfDepositAccount>("CertificateOfDepositAccount")
+            .HasValue<MoneyMarketAccount>("MoneyMarketAccount");
+        
+        builder.Entity<Account>()
+            .Property(a => a.Balance)
+            .HasPrecision(18, 2);
+            
+        builder.Entity<SavingsAccount>()
+            .Property(a => a.InterestRate)
+            .HasPrecision(5, 2);
+            
+        builder.Entity<CertificateOfDepositAccount>()
+            .Property(a => a.InterestRate)
+            .HasPrecision(5, 2);
+            
+        builder.Entity<MoneyMarketAccount>()
+            .Property(a => a.InterestRate)
+            .HasPrecision(5, 2);
+            
+        // Configure Loan hierarchy with TPH
+        builder.Entity<Loan>()
+            .HasDiscriminator<string>("LoanType")
+            .HasValue<AutoLoan>("AutoLoan")
+            .HasValue<MortgageLoan>("MortgageLoan")
+            .HasValue<CreditCardLoan>("CreditCardLoan")
+            .HasValue<PersonalLoan>("PersonalLoan")
+            .HasValue<HelocLoan>("HelocLoan")
+            .HasValue<PersonalLineOfCreditLoan>("PersonalLineOfCreditLoan");
+            
+        builder.Entity<Loan>()
+            .Property(l => l.Principal)
+            .HasPrecision(18, 2);
+            
+        builder.Entity<Loan>()
+            .Property(l => l.InterestRate)
+            .HasPrecision(5, 2);
+            
+        builder.Entity<MortgageLoan>()
+            .Property(l => l.PropertyValue)
+            .HasPrecision(18, 2);
+            
+        builder.Entity<CreditCardLoan>()
+            .Property(l => l.CreditLimit)
+            .HasPrecision(18, 2);
+            
+        builder.Entity<CreditCardLoan>()
+            .Property(l => l.AnnualFee)
+            .HasPrecision(10, 2);
+            
+        builder.Entity<HelocLoan>()
+            .Property(l => l.PropertyValue)
+            .HasPrecision(18, 2);
+            
+        builder.Entity<HelocLoan>()
+            .Property(l => l.CreditLimit)
+            .HasPrecision(18, 2);
+            
+        builder.Entity<HelocLoan>()
+            .Property(l => l.CurrentEquity)
+            .HasPrecision(18, 2);
+            
+        builder.Entity<PersonalLineOfCreditLoan>()
+            .Property(l => l.CreditLimit)
+            .HasPrecision(18, 2);
     }
 }

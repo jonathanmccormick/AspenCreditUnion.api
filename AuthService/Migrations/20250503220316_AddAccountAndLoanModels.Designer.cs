@@ -4,6 +4,7 @@ using AuthService.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AuthService.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250503220316_AddAccountAndLoanModels")]
+    partial class AddAccountAndLoanModels
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -36,7 +39,6 @@ namespace AuthService.Migrations
                         .HasColumnType("nvarchar(34)");
 
                     b.Property<decimal>("Balance")
-                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime>("CreatedAt")
@@ -193,8 +195,7 @@ namespace AuthService.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<decimal>("InterestRate")
-                        .HasPrecision(5, 2)
-                        .HasColumnType("decimal(5,2)");
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("LoanType")
                         .IsRequired()
@@ -202,7 +203,6 @@ namespace AuthService.Migrations
                         .HasColumnType("nvarchar(34)");
 
                     b.Property<decimal>("Principal")
-                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime>("StartDate")
@@ -404,8 +404,7 @@ namespace AuthService.Migrations
                         .HasColumnType("bit");
 
                     b.Property<decimal>("InterestRate")
-                        .HasPrecision(5, 2)
-                        .HasColumnType("decimal(5,2)");
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime>("MaturityDate")
                         .HasColumnType("datetime2");
@@ -425,8 +424,7 @@ namespace AuthService.Migrations
                     b.HasBaseType("AuthService.Models.Account");
 
                     b.Property<decimal>("InterestRate")
-                        .HasPrecision(5, 2)
-                        .HasColumnType("decimal(5,2)");
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("TransactionsPerMonth")
                         .HasColumnType("int");
@@ -445,8 +443,7 @@ namespace AuthService.Migrations
                     b.HasBaseType("AuthService.Models.Account");
 
                     b.Property<decimal>("InterestRate")
-                        .HasPrecision(5, 2)
-                        .HasColumnType("decimal(5,2)");
+                        .HasColumnType("decimal(18,2)");
 
                     b.ToTable("Accounts", t =>
                         {
@@ -484,11 +481,9 @@ namespace AuthService.Migrations
                     b.HasBaseType("AuthService.Models.Loan");
 
                     b.Property<decimal>("AnnualFee")
-                        .HasPrecision(10, 2)
-                        .HasColumnType("decimal(10,2)");
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("CreditLimit")
-                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("RewardProgram")
@@ -509,11 +504,9 @@ namespace AuthService.Migrations
                     b.HasBaseType("AuthService.Models.Loan");
 
                     b.Property<decimal>("CreditLimit")
-                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("CurrentEquity")
-                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("DrawPeriodMonths")
@@ -524,7 +517,6 @@ namespace AuthService.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("PropertyValue")
-                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.HasDiscriminator().HasValue("HelocLoan");
@@ -545,7 +537,6 @@ namespace AuthService.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("PropertyValue")
-                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.ToTable("Loans", t =>
@@ -565,7 +556,6 @@ namespace AuthService.Migrations
                     b.HasBaseType("AuthService.Models.Loan");
 
                     b.Property<decimal>("CreditLimit")
-                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("DrawPeriodMonths")
