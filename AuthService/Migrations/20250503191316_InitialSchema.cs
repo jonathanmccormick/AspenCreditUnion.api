@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace AuthService.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialSqlServerSchema : Migration
+    public partial class InitialSchema : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -88,21 +88,6 @@ namespace AuthService.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_RefreshTokens", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "RevokedTokens",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    JwtId = table.Column<string>(type: "nvarchar(450)", maxLength: 450, nullable: false),
-                    RevocationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    ExpiryDate = table.Column<DateTime>(type: "datetime2", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_RevokedTokens", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -259,11 +244,6 @@ namespace AuthService.Migrations
                 column: "NormalizedUserName",
                 unique: true,
                 filter: "[NormalizedUserName] IS NOT NULL");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_RevokedTokens_JwtId",
-                table: "RevokedTokens",
-                column: "JwtId");
         }
 
         /// <inheritdoc />
@@ -289,9 +269,6 @@ namespace AuthService.Migrations
 
             migrationBuilder.DropTable(
                 name: "RefreshTokens");
-
-            migrationBuilder.DropTable(
-                name: "RevokedTokens");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");

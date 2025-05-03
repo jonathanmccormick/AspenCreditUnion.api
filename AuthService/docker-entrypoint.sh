@@ -1,16 +1,17 @@
 #!/bin/bash
 set -e
 
-# Add .NET tools to PATH
-export PATH="$PATH:/root/.dotnet/tools"
+# If the command starts with dotnet, proceed with the default command
+if [ "${1#dotnet}" != "$1" ]; then
+    exec "$@"
+fi
 
-# Wait a bit to ensure everything is ready
-echo "Running database migrations..."
+# Apply migrations if the command includes --apply-migrations
+if [[ "$*" == *--apply-migrations* ]]; then
+    echo "Applying database migrations..."
+    dotnet "AuthService.dll" --apply-migrations
+    exit 0
+fi
 
-# We need to use a connection string directly since we're running from published files
-cd /app
-dotnet AuthService.dll --apply-migrations
-
-# Start the application
-echo "Starting the application..."
-exec dotnet AuthService.dll
+# Otherwise, run the command
+exec "$@"
