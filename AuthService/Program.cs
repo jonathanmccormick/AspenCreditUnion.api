@@ -99,9 +99,49 @@ if (applyMigrations)
 }
 
 // Configure the HTTP request pipeline.
+// Use built-in exception handler instead of custom middleware
+app.UseExceptionHandler(exceptionHandlerApp => 
+{
+    exceptionHandlerApp.Run(async context => 
+    {
+        context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+        context.Response.ContentType = "application/json";
+        
+        var feature = context.Features.Get<Microsoft.AspNetCore.Diagnostics.IExceptionHandlerFeature>();
+        if (feature != null)
+        {
+            var logger = app.Services.GetRequiredService<ILogger<Program>>();
+            logger.LogError(feature.Error, "Unhandled exception");
+            
+            // Return sanitized error message
+            string message = "An unexpected error occurred. Please try again later.";
+            
+            // Check for specific exception types to provide appropriate messages
+            if (feature.Error is Microsoft.Data.SqlClient.SqlException)
+            {
+                message = "Database service is currently unavailable. Please try again later.";
+                context.Response.StatusCode = StatusCodes.Status503ServiceUnavailable;
+            }
+            else if (feature.Error is Microsoft.EntityFrameworkCore.DbUpdateException)
+            {
+                message = "A database error occurred while processing your request.";
+                context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+            }
+            else if (feature.Error is UnauthorizedAccessException)
+            {
+                message = "You are not authorized to perform this action.";
+                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+            }
+            
+            await context.Response.WriteAsJsonAsync(new { message });
+        }
+    });
+});
+
 if (app.Environment.IsDevelopment())
 {
-    app.UseDeveloperExceptionPage();
+    // Don't use DeveloperExceptionPage as it shows too much information
+    // app.UseDeveloperExceptionPage();
     app.MapOpenApi();
 }
 
