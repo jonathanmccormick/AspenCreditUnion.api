@@ -1,0 +1,501 @@
+{
+  "info": {
+    "name": "Banking API",
+    "_postman_id": "12345678-1234-1234-1234-123456789abc",
+    "description": "Collection for testing the banking app APIs",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"Password123!\",\n  \"confirmPassword\": \"Password123!\",\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "register"]
+            },
+            "description": "Register a new user"
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"Password123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            },
+            "description": "Login to get access token"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "pm.environment.set(\"token\", jsonData.token);",
+                  "pm.environment.set(\"refreshToken\", jsonData.refreshToken);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/refresh",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "refresh"]
+            },
+            "description": "Refresh access token using refresh token"
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "logout"]
+            },
+            "description": "Logout and invalidate token"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Accounts",
+      "item": [
+        {
+          "name": "Get All Accounts",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/accounts",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "accounts"]
+            },
+            "description": "Get all accounts for the authenticated user"
+          }
+        },
+        {
+          "name": "Get Account Types",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/accounts/types",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "accounts", "types"]
+            },
+            "description": "Get available account types"
+          }
+        },
+        {
+          "name": "Get Account by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/accounts/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "accounts", "1"]
+            },
+            "description": "Get details for a specific account"
+          }
+        },
+        {
+          "name": "Create Checking Account",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"initialDeposit\": 1000.00\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/accounts/checking",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "accounts", "checking"]
+            },
+            "description": "Create a new checking account"
+          }
+        },
+        {
+          "name": "Create Savings Account",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"initialDeposit\": 5000.00,\n  \"interestRate\": 0.025\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/accounts/savings",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "accounts", "savings"]
+            },
+            "description": "Create a new savings account"
+          }
+        },
+        {
+          "name": "Create CD Account",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"initialDeposit\": 10000.00,\n  \"interestRate\": 0.035,\n  \"maturityDate\": \"2026-05-03T00:00:00Z\",\n  \"autoRenew\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/accounts/cd",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "accounts", "cd"]
+            },
+            "description": "Create a new certificate of deposit account"
+          }
+        },
+        {
+          "name": "Create Money Market Account",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"initialDeposit\": 15000.00,\n  \"interestRate\": 0.028,\n  \"transactionsPerMonth\": 6\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/accounts/money-market",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "accounts", "money-market"]
+            },
+            "description": "Create a new money market account"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Loans",
+      "item": [
+        {
+          "name": "Get All Loans",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/loans",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "loans"]
+            },
+            "description": "Get all loans for the authenticated user"
+          }
+        },
+        {
+          "name": "Get Loan Types",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/loans/types",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "loans", "types"]
+            },
+            "description": "Get available loan types"
+          }
+        },
+        {
+          "name": "Get Loan by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/loans/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "loans", "1"]
+            },
+            "description": "Get details for a specific loan"
+          }
+        },
+        {
+          "name": "Apply for Auto Loan",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"principal\": 25000.00,\n  \"interestRate\": 0.0399,\n  \"vehicleVin\": \"1HGCM82633A123456\",\n  \"vehicleMake\": \"Honda\",\n  \"vehicleModel\": \"Accord\",\n  \"vehicleYear\": 2024\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/loans/auto",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "loans", "auto"]
+            },
+            "description": "Apply for an auto loan"
+          }
+        },
+        {
+          "name": "Apply for Mortgage",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"principal\": 350000.00,\n  \"interestRate\": 0.0549,\n  \"propertyAddress\": \"123 Main St, Anytown, CA 12345\",\n  \"propertyValue\": 400000.00,\n  \"loanTermYears\": 30,\n  \"isFixedRate\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/loans/mortgage",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "loans", "mortgage"]
+            },
+            "description": "Apply for a mortgage loan"
+          }
+        },
+        {
+          "name": "Apply for Credit Card",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"interestRate\": 0.1599,\n  \"creditLimit\": 10000.00,\n  \"annualFee\": 95.00,\n  \"rewardProgram\": \"Cash Back Plus\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/loans/credit-card",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "loans", "credit-card"]
+            },
+            "description": "Apply for a credit card"
+          }
+        },
+        {
+          "name": "Apply for Personal Loan",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"principal\": 15000.00,\n  \"interestRate\": 0.0699,\n  \"purpose\": \"Home renovation\",\n  \"loanTermMonths\": 48,\n  \"isSecured\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/loans/personal",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "loans", "personal"]
+            },
+            "description": "Apply for a personal loan"
+          }
+        },
+        {
+          "name": "Apply for HELOC",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"interestRate\": 0.0649,\n  \"propertyAddress\": \"456 Oak St, Anytown, CA 12345\",\n  \"propertyValue\": 500000.00,\n  \"creditLimit\": 100000.00,\n  \"currentEquity\": 200000.00,\n  \"drawPeriodMonths\": 120\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/loans/heloc",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "loans", "heloc"]
+            },
+            "description": "Apply for a home equity line of credit"
+          }
+        },
+        {
+          "name": "Apply for Personal Line of Credit",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"interestRate\": 0.0799,\n  \"creditLimit\": 25000.00,\n  \"drawPeriodMonths\": 60,\n  \"isSecured\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/loans/personal-line-of-credit",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "loans", "personal-line-of-credit"]
+            },
+            "description": "Apply for a personal line of credit"
+          }
+        }
+      ]
+    }
+  ]
+}
