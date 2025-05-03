@@ -93,16 +93,21 @@ builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
-// Apply migrations if requested
-if (applyMigrations)
+// 🚀 Automatically apply migrations at startup
+try
 {
-    Console.WriteLine("Applying database migrations...");
     using var scope = app.Services.CreateScope();
     var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     dbContext.Database.Migrate();
-    Console.WriteLine("Migrations applied successfully!");
-    return;
+    Console.WriteLine("✅ Database migrations applied successfully.");
 }
+catch (Exception ex)
+{
+    Console.WriteLine("❌ Failed to apply database migrations:");
+    Console.WriteLine(ex.Message);
+    // optionally rethrow or log
+}
+
 
 // Configure the HTTP request pipeline.
 // Use built-in exception handler instead of custom middleware
