@@ -16,6 +16,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<ActiveToken> ActiveTokens { get; set; }
     public DbSet<Account> Accounts { get; set; }
     public DbSet<Loan> Loans { get; set; }
+    public DbSet<Transaction> Transactions { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -150,6 +151,14 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             
         builder.Entity<PersonalLineOfCreditLoan>()
             .Property(l => l.CreditLimit)
+            .HasPrecision(18, 2);
+            
+        // Configure Transaction
+        builder.Entity<Transaction>()
+            .HasKey(t => t.Id);
+            
+        builder.Entity<Transaction>()
+            .Property(t => t.Amount)
             .HasPrecision(18, 2);
     }
 }
