@@ -4,7 +4,7 @@ namespace AuthService.Models;
 
 public abstract class Loan
 {
-    public int Id { get; set; }
+    public Guid Id { get; set; } = Guid.NewGuid(); // Changed Id to Guid for global uniqueness
     public string BorrowerId { get; set; } = string.Empty; // Foreign key to ApplicationUser
     public decimal Principal { get; set; }
     public decimal InterestRate { get; set; }

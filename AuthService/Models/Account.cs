@@ -4,7 +4,7 @@ namespace AuthService.Models;
 
 public abstract class Account
 {
-    public int Id { get; set; }
+    public Guid Id { get; set; } = Guid.NewGuid(); // Changed Id to Guid for global uniqueness
     public string OwnerId { get; set; } = string.Empty; // Foreign key to ApplicationUser
     public decimal Balance { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

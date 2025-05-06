@@ -496,6 +496,89 @@
           }
         }
       ]
+    },
+    {
+      "name": "Transactions",
+      "item": [
+        {
+          "name": "Transfer Between Accounts",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": 0,\n  \"sourceAccountId\": 1,\n  \"destinationAccountId\": 2,\n  \"amount\": 100.00\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/transactions",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "transactions"]
+            },
+            "description": "Transfer money between two accounts"
+          }
+        },
+        {
+          "name": "Loan Payment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": 1,\n  \"sourceAccountId\": 1,\n  \"destinationAccountId\": 1,\n  \"amount\": 250.00\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/transactions",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "transactions"]
+            },
+            "description": "Make a payment towards a loan from an account"
+          }
+        },
+        {
+          "name": "Loan Advance",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": 2,\n  \"sourceAccountId\": 1,\n  \"destinationAccountId\": 1,\n  \"amount\": 500.00\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/transactions",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "transactions"]
+            },
+            "description": "Request an advance from an eligible loan (HELOC, credit card, etc.) to an account"
+          }
+        }
+      ]
     }
   ]
 }
