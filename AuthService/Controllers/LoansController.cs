@@ -41,7 +41,7 @@ public class LoansController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetLoan(int id)
+    public async Task<IActionResult> GetLoan(Guid id)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (string.IsNullOrEmpty(userId))

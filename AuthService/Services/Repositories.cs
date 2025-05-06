@@ -15,7 +15,7 @@ namespace AuthService.Services
             _context = context;
         }
 
-        public async Task<Account> GetAccountAsync(int accountId)
+        public async Task<Account> GetAccountAsync(Guid accountId)
         {
             return await _context.Accounts.FindAsync(accountId);
         }
@@ -36,7 +36,7 @@ namespace AuthService.Services
             _context = context;
         }
 
-        public async Task<Loan> GetLoanAsync(int loanId)
+        public async Task<Loan> GetLoanAsync(Guid loanId)
         {
             return await _context.Loans.FindAsync(loanId);
         }

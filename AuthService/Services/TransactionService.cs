@@ -8,9 +8,9 @@ namespace AuthService.Services
 {
     public interface ITransactionService
     {
-        Task<Transaction> TransferBetweenAccounts(string userId, int fromAcct, int toAcct, decimal amount);
-        Task<Transaction> PayLoan(string userId, int fromAcct, int loanId, decimal amount);
-        Task<Transaction> LoanAdvance(string userId, int loanId, int toAcct, decimal amount);
+        Task<Transaction> TransferBetweenAccounts(string userId, Guid fromAcct, Guid toAcct, decimal amount);
+        Task<Transaction> PayLoan(string userId, Guid fromAcct, Guid loanId, decimal amount);
+        Task<Transaction> LoanAdvance(string userId, Guid loanId, Guid toAcct, decimal amount);
     }
 
     public class TransactionService : ITransactionService
@@ -26,7 +26,7 @@ namespace AuthService.Services
             _context = context;
         }
 
-        public async Task<Transaction> TransferBetweenAccounts(string userId, int fromAcct, int toAcct, decimal amount)
+        public async Task<Transaction> TransferBetweenAccounts(string userId, Guid fromAcct, Guid toAcct, decimal amount)
         {
             // Validate accounts and balances
             var sourceAccount = await _accountRepo.GetAccountAsync(fromAcct);
@@ -65,7 +65,7 @@ namespace AuthService.Services
             return transaction;
         }
 
-        public async Task<Transaction> PayLoan(string userId, int fromAcct, int loanId, decimal amount)
+        public async Task<Transaction> PayLoan(string userId, Guid fromAcct, Guid loanId, decimal amount)
         {
             // Validate account and loan
             var sourceAccount = await _accountRepo.GetAccountAsync(fromAcct);
@@ -104,7 +104,7 @@ namespace AuthService.Services
             return transaction;
         }
 
-        public async Task<Transaction> LoanAdvance(string userId, int loanId, int toAcct, decimal amount)
+        public async Task<Transaction> LoanAdvance(string userId, Guid loanId, Guid toAcct, decimal amount)
         {
             // Validate loan and account
             var loan = await _loanRepo.GetLoanAsync(loanId);

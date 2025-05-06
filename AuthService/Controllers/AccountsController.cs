@@ -42,7 +42,7 @@ public class AccountsController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetAccount(int id)
+    public async Task<IActionResult> GetAccount(Guid id)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (string.IsNullOrEmpty(userId))

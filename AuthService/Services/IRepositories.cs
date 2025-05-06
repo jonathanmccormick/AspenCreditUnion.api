@@ -6,13 +6,13 @@ namespace AuthService.Services
 {
     public interface IAccountRepository
     {
-        Task<Account> GetAccountAsync(int accountId);
+        Task<Account> GetAccountAsync(Guid accountId);
         Task UpdateAccountAsync(Account account);
     }
 
     public interface ILoanRepository
     {
-        Task<Loan> GetLoanAsync(int loanId);
+        Task<Loan> GetLoanAsync(Guid loanId);
         Task UpdateLoanAsync(Loan loan);
     }
 }
