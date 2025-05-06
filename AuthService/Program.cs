@@ -63,6 +63,7 @@ builder.Services.AddHostedService<TokenCleanupService>();
 // Register repositories and transaction service
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 builder.Services.AddScoped<ILoanRepository, LoanRepository>();
+builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
 builder.Services.AddScoped<ITransactionService, TransactionService>();
 
 // Configure JWT Authentication

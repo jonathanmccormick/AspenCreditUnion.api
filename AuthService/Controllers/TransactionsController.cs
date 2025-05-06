@@ -1,9 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Threading.Tasks;
+using System.Linq;
 using AuthService.Models;
 using AuthService.Services;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
+using Microsoft.Extensions.Logging;
 
 namespace AuthService.Controllers
 {
@@ -13,13 +16,18 @@ namespace AuthService.Controllers
     public class TransactionsController : ControllerBase
     {
         private readonly ITransactionService _transactionService;
+        private readonly ILogger<TransactionsController> _logger;
 
-        public TransactionsController(ITransactionService transactionService)
+        public TransactionsController(
+            ITransactionService transactionService,
+            ILogger<TransactionsController> logger)
         {
             _transactionService = transactionService;
+            _logger = logger;
         }
 
         [HttpPost]
+        [Route("")]  // Explicitly specify empty route for POST
         public async Task<IActionResult> CreateTransaction([FromBody] TransactionRequest request)
         {
             if (request == null)
@@ -29,6 +37,10 @@ namespace AuthService.Controllers
                 return BadRequest("Amount must be positive");
                 
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized(new { message = "Invalid token" });
+            }
             
             try
             {
@@ -48,15 +60,63 @@ namespace AuthService.Controllers
                         return BadRequest("Invalid transaction type.");
                 }
 
+                return Ok(new
+                {
+                    transactionId = result.Id,
+                    type = result.Type.ToString(),
+                    amount = result.Amount,
+                    sourceId = result.SourceAccountId,
+                    destinationId = result.DestinationAccountId,
+                    date = result.CreatedAt
+                });
+            }
+            catch (ArgumentException ex)
+            {
+                _logger.LogWarning(ex, "Invalid transaction request");
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                _logger.LogWarning(ex, "Transaction business rule violation");
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error processing transaction");
+                return StatusCode(500, "An unexpected error occurred while processing the transaction");
+            }
+        }
+
+        [HttpGet]
+        [Route("history")]  // Change to a different route path
+        public async Task<IActionResult> GetTransactions()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized(new { message = "Invalid token" });
+            }
+
+            try
+            {
+                var transactions = await _transactionService.GetUserTransactions(userId);
+                
+                var result = transactions.Select(t => new
+                {
+                    id = t.Id,
+                    type = t.Type.ToString(),
+                    amount = t.Amount,
+                    sourceId = t.SourceAccountId,
+                    destinationId = t.DestinationAccountId,
+                    date = t.CreatedAt
+                });
+                
                 return Ok(result);
             }
-            catch (System.ArgumentException ex)
+            catch (Exception ex)
             {
-                return BadRequest(ex.Message);
-            }
-            catch (System.InvalidOperationException ex)
-            {
-                return BadRequest(ex.Message);
+                _logger.LogError(ex, "Error retrieving user transactions");
+                return StatusCode(500, "An error occurred while retrieving transactions");
             }
         }
     }

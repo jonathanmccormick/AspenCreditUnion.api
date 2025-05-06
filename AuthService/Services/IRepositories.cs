@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using AuthService.Models;
 
@@ -14,5 +15,12 @@ namespace AuthService.Services
     {
         Task<Loan> GetLoanAsync(Guid loanId);
         Task UpdateLoanAsync(Loan loan);
+    }
+
+    public interface ITransactionRepository
+    {
+        Task<IEnumerable<Transaction>> GetUserTransactionsAsync(string userId);
+        Task<Transaction> CreateTransactionAsync(Transaction transaction);
+        Task<int> GetMonthlyTransactionCountAsync(Guid accountId);
     }
 }
