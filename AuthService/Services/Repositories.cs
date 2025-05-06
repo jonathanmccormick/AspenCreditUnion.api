@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using AuthService.Data;
 using AuthService.Models;
@@ -45,6 +47,42 @@ namespace AuthService.Services
         {
             _context.Loans.Update(loan);
             await _context.SaveChangesAsync();
+        }
+    }
+
+    public class TransactionRepository : ITransactionRepository
+    {
+        private readonly ApplicationDbContext _context;
+
+        public TransactionRepository(ApplicationDbContext context)
+        {
+            _context = context;
+        }
+
+        public async Task<IEnumerable<Transaction>> GetUserTransactionsAsync(string userId)
+        {
+            return await _context.Transactions
+                .Where(t => t.UserId == userId)
+                .OrderByDescending(t => t.CreatedAt)
+                .ToListAsync();
+        }
+
+        public async Task<Transaction> CreateTransactionAsync(Transaction transaction)
+        {
+            _context.Transactions.Add(transaction);
+            await _context.SaveChangesAsync();
+            return transaction;
+        }
+
+        public async Task<int> GetMonthlyTransactionCountAsync(Guid accountId)
+        {
+            var startOfMonth = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
+            
+            return await _context.Transactions
+                .Where(t => 
+                    (t.SourceAccountId == accountId || t.DestinationAccountId == accountId) && 
+                    t.CreatedAt >= startOfMonth)
+                .CountAsync();
         }
     }
 }
