@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AuthService.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250503003738_InitialSqlServerSchema")]
-    partial class InitialSqlServerSchema
+    [Migration("20250506020431_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,39 @@ namespace AuthService.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("AuthService.Models.Account", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AccountType")
+                        .IsRequired()
+                        .HasMaxLength(34)
+                        .HasColumnType("nvarchar(34)");
+
+                    b.Property<decimal>("Balance")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("OwnerId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Accounts");
+
+                    b.HasDiscriminator<string>("AccountType").HasValue("Account");
+
+                    b.UseTphMappingStrategy();
+                });
 
             modelBuilder.Entity("AuthService.Models.ActiveToken", b =>
                 {
@@ -147,6 +180,49 @@ namespace AuthService.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("AuthService.Models.Loan", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("BorrowerId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("InterestRate")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<string>("LoanType")
+                        .IsRequired()
+                        .HasMaxLength(34)
+                        .HasColumnType("nvarchar(34)");
+
+                    b.Property<decimal>("Principal")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Loans");
+
+                    b.HasDiscriminator<string>("LoanType").HasValue("Loan");
+
+                    b.UseTphMappingStrategy();
+                });
+
             modelBuilder.Entity("AuthService.Models.RefreshToken", b =>
                 {
                     b.Property<int>("Id")
@@ -179,30 +255,35 @@ namespace AuthService.Migrations
                     b.ToTable("RefreshTokens");
                 });
 
-            modelBuilder.Entity("AuthService.Models.RevokedToken", b =>
+            modelBuilder.Entity("AuthService.Models.Transaction", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("DestinationAccountId")
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    b.Property<int>("SourceAccountId")
+                        .HasColumnType("int");
 
-                    b.Property<DateTime>("ExpiryDate")
-                        .HasColumnType("datetime2");
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
 
-                    b.Property<string>("JwtId")
+                    b.Property<string>("UserId")
                         .IsRequired()
-                        .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("RevocationDate")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("JwtId");
-
-                    b.ToTable("RevokedTokens");
+                    b.ToTable("Transactions");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -347,6 +428,219 @@ namespace AuthService.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens", (string)null);
+                });
+
+            modelBuilder.Entity("AuthService.Models.CertificateOfDepositAccount", b =>
+                {
+                    b.HasBaseType("AuthService.Models.Account");
+
+                    b.Property<bool>("AutoRenew")
+                        .HasColumnType("bit");
+
+                    b.Property<decimal>("InterestRate")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<DateTime>("MaturityDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasDiscriminator().HasValue("CertificateOfDepositAccount");
+                });
+
+            modelBuilder.Entity("AuthService.Models.CheckingAccount", b =>
+                {
+                    b.HasBaseType("AuthService.Models.Account");
+
+                    b.HasDiscriminator().HasValue("CheckingAccount");
+                });
+
+            modelBuilder.Entity("AuthService.Models.MoneyMarketAccount", b =>
+                {
+                    b.HasBaseType("AuthService.Models.Account");
+
+                    b.Property<decimal>("InterestRate")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<int>("TransactionsPerMonth")
+                        .HasColumnType("int");
+
+                    b.ToTable("Accounts", t =>
+                        {
+                            t.Property("InterestRate")
+                                .HasColumnName("MoneyMarketAccount_InterestRate");
+                        });
+
+                    b.HasDiscriminator().HasValue("MoneyMarketAccount");
+                });
+
+            modelBuilder.Entity("AuthService.Models.SavingsAccount", b =>
+                {
+                    b.HasBaseType("AuthService.Models.Account");
+
+                    b.Property<decimal>("InterestRate")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("decimal(5,2)");
+
+                    b.ToTable("Accounts", t =>
+                        {
+                            t.Property("InterestRate")
+                                .HasColumnName("SavingsAccount_InterestRate");
+                        });
+
+                    b.HasDiscriminator().HasValue("SavingsAccount");
+                });
+
+            modelBuilder.Entity("AuthService.Models.AutoLoan", b =>
+                {
+                    b.HasBaseType("AuthService.Models.Loan");
+
+                    b.Property<string>("VehicleMake")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("VehicleModel")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("VehicleVin")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("VehicleYear")
+                        .HasColumnType("int");
+
+                    b.HasDiscriminator().HasValue("AutoLoan");
+                });
+
+            modelBuilder.Entity("AuthService.Models.CreditCardLoan", b =>
+                {
+                    b.HasBaseType("AuthService.Models.Loan");
+
+                    b.Property<decimal>("AnnualFee")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<decimal>("CreditLimit")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("RewardProgram")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.ToTable("Loans", t =>
+                        {
+                            t.Property("CreditLimit")
+                                .HasColumnName("CreditCardLoan_CreditLimit");
+                        });
+
+                    b.HasDiscriminator().HasValue("CreditCardLoan");
+                });
+
+            modelBuilder.Entity("AuthService.Models.HelocLoan", b =>
+                {
+                    b.HasBaseType("AuthService.Models.Loan");
+
+                    b.Property<decimal>("CreditLimit")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("CurrentEquity")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("DrawPeriodMonths")
+                        .HasColumnType("int");
+
+                    b.Property<string>("PropertyAddress")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("PropertyValue")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasDiscriminator().HasValue("HelocLoan");
+                });
+
+            modelBuilder.Entity("AuthService.Models.MortgageLoan", b =>
+                {
+                    b.HasBaseType("AuthService.Models.Loan");
+
+                    b.Property<bool>("IsFixedRate")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("LoanTermYears")
+                        .HasColumnType("int");
+
+                    b.Property<string>("PropertyAddress")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("PropertyValue")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.ToTable("Loans", t =>
+                        {
+                            t.Property("PropertyAddress")
+                                .HasColumnName("MortgageLoan_PropertyAddress");
+
+                            t.Property("PropertyValue")
+                                .HasColumnName("MortgageLoan_PropertyValue");
+                        });
+
+                    b.HasDiscriminator().HasValue("MortgageLoan");
+                });
+
+            modelBuilder.Entity("AuthService.Models.PersonalLineOfCreditLoan", b =>
+                {
+                    b.HasBaseType("AuthService.Models.Loan");
+
+                    b.Property<decimal>("CreditLimit")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("DrawPeriodMonths")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsSecured")
+                        .HasColumnType("bit");
+
+                    b.ToTable("Loans", t =>
+                        {
+                            t.Property("CreditLimit")
+                                .HasColumnName("PersonalLineOfCreditLoan_CreditLimit");
+
+                            t.Property("DrawPeriodMonths")
+                                .HasColumnName("PersonalLineOfCreditLoan_DrawPeriodMonths");
+                        });
+
+                    b.HasDiscriminator().HasValue("PersonalLineOfCreditLoan");
+                });
+
+            modelBuilder.Entity("AuthService.Models.PersonalLoan", b =>
+                {
+                    b.HasBaseType("AuthService.Models.Loan");
+
+                    b.Property<bool>("IsSecured")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("LoanTermMonths")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Purpose")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.ToTable("Loans", t =>
+                        {
+                            t.Property("IsSecured")
+                                .HasColumnName("PersonalLoan_IsSecured");
+                        });
+
+                    b.HasDiscriminator().HasValue("PersonalLoan");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

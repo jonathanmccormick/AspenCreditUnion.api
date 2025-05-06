@@ -6,11 +6,33 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace AuthService.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialSqlServerSchema : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.CreateTable(
+                name: "Accounts",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    OwnerId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Balance = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    AccountType = table.Column<string>(type: "nvarchar(34)", maxLength: 34, nullable: false),
+                    InterestRate = table.Column<decimal>(type: "decimal(5,2)", precision: 5, scale: 2, nullable: true),
+                    MaturityDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    AutoRenew = table.Column<bool>(type: "bit", nullable: true),
+                    MoneyMarketAccount_InterestRate = table.Column<decimal>(type: "decimal(5,2)", precision: 5, scale: 2, nullable: true),
+                    TransactionsPerMonth = table.Column<int>(type: "int", nullable: true),
+                    SavingsAccount_InterestRate = table.Column<decimal>(type: "decimal(5,2)", precision: 5, scale: 2, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Accounts", x => x.Id);
+                });
+
             migrationBuilder.CreateTable(
                 name: "ActiveTokens",
                 columns: table => new
@@ -74,6 +96,47 @@ namespace AuthService.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Loans",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    BorrowerId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Principal = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    InterestRate = table.Column<decimal>(type: "decimal(5,2)", precision: 5, scale: 2, nullable: false),
+                    StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    LoanType = table.Column<string>(type: "nvarchar(34)", maxLength: 34, nullable: false),
+                    VehicleVin = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    VehicleMake = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    VehicleModel = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    VehicleYear = table.Column<int>(type: "int", nullable: true),
+                    CreditCardLoan_CreditLimit = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: true),
+                    AnnualFee = table.Column<decimal>(type: "decimal(10,2)", precision: 10, scale: 2, nullable: true),
+                    RewardProgram = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PropertyAddress = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PropertyValue = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: true),
+                    CreditLimit = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: true),
+                    CurrentEquity = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: true),
+                    DrawPeriodMonths = table.Column<int>(type: "int", nullable: true),
+                    MortgageLoan_PropertyAddress = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    MortgageLoan_PropertyValue = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: true),
+                    LoanTermYears = table.Column<int>(type: "int", nullable: true),
+                    IsFixedRate = table.Column<bool>(type: "bit", nullable: true),
+                    PersonalLineOfCreditLoan_CreditLimit = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: true),
+                    PersonalLineOfCreditLoan_DrawPeriodMonths = table.Column<int>(type: "int", nullable: true),
+                    IsSecured = table.Column<bool>(type: "bit", nullable: true),
+                    Purpose = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    LoanTermMonths = table.Column<int>(type: "int", nullable: true),
+                    PersonalLoan_IsSecured = table.Column<bool>(type: "bit", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Loans", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "RefreshTokens",
                 columns: table => new
                 {
@@ -91,18 +154,20 @@ namespace AuthService.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "RevokedTokens",
+                name: "Transactions",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    JwtId = table.Column<string>(type: "nvarchar(450)", maxLength: 450, nullable: false),
-                    RevocationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    ExpiryDate = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Type = table.Column<int>(type: "int", nullable: false),
+                    Amount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    SourceAccountId = table.Column<int>(type: "int", nullable: false),
+                    DestinationAccountId = table.Column<int>(type: "int", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UserId = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_RevokedTokens", x => x.Id);
+                    table.PrimaryKey("PK_Transactions", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -259,16 +324,14 @@ namespace AuthService.Migrations
                 column: "NormalizedUserName",
                 unique: true,
                 filter: "[NormalizedUserName] IS NOT NULL");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_RevokedTokens_JwtId",
-                table: "RevokedTokens",
-                column: "JwtId");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "Accounts");
+
             migrationBuilder.DropTable(
                 name: "ActiveTokens");
 
@@ -288,10 +351,13 @@ namespace AuthService.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "Loans");
+
+            migrationBuilder.DropTable(
                 name: "RefreshTokens");
 
             migrationBuilder.DropTable(
-                name: "RevokedTokens");
+                name: "Transactions");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
