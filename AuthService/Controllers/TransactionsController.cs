@@ -11,8 +11,9 @@ using Microsoft.Extensions.Logging;
 namespace AuthService.Controllers
 {
     [ApiController]
-    [Route("api/transactions")]
     [Authorize]
+    [ApiVersion("1.0")]
+    [Route("api/v{version:apiVersion}/transactions")]
     public class TransactionsController : ControllerBase
     {
         private readonly ITransactionService _transactionService;

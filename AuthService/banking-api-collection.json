@@ -2,7 +2,7 @@
   "info": {
     "name": "Banking API",
     "_postman_id": "12345678-1234-1234-1234-123456789abc",
-    "description": "Collection for testing the banking app APIs",
+    "description": "Collection for testing the banking app APIs with versioning support",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -10,6 +10,12 @@
       "key": "baseUrl",
       "value": "http://localhost:5000",
       "type": "string"
+    },
+    {
+      "key": "apiVersion",
+      "value": "v1",
+      "type": "string",
+      "description": "API version to use"
     }
   ],
   "item": [
@@ -31,9 +37,9 @@
               "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"Password123!\",\n  \"confirmPassword\": \"Password123!\",\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/auth/register",
+              "raw": "{{baseUrl}}/api/{{apiVersion}}/auth/register",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "register"]
+              "path": ["api", "{{apiVersion}}", "auth", "register"]
             },
             "description": "Register a new user"
           }
@@ -53,9 +59,9 @@
               "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"Password123!\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/auth/login",
+              "raw": "{{baseUrl}}/api/{{apiVersion}}/auth/login",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "login"]
+              "path": ["api", "{{apiVersion}}", "auth", "login"]
             },
             "description": "Login to get access token"
           },
@@ -88,9 +94,9 @@
               "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/auth/refresh",
+              "raw": "{{baseUrl}}/api/{{apiVersion}}/auth/refresh-token",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "refresh"]
+              "path": ["api", "{{apiVersion}}", "auth", "refresh-token"]
             },
             "description": "Refresh access token using refresh token"
           }
@@ -110,11 +116,140 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/auth/logout",
+              "raw": "{{baseUrl}}/api/{{apiVersion}}/auth/logout",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "logout"]
+              "path": ["api", "{{apiVersion}}", "auth", "logout"]
             },
             "description": "Logout and invalidate token"
+          }
+        },
+        {
+          "name": "Active Sessions",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/{{apiVersion}}/auth/active-sessions",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "{{apiVersion}}", "auth", "active-sessions"]
+            },
+            "description": "Get all active sessions for the current user"
+          }
+        },
+        {
+          "name": "Revoke Session",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/{{apiVersion}}/auth/revoke-session/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "{{apiVersion}}", "auth", "revoke-session", "1"]
+            },
+            "description": "Revoke a specific session by ID"
+          }
+        },
+        {
+          "name": "Revoke All Sessions",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/{{apiVersion}}/auth/revoke-all-sessions",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "{{apiVersion}}", "auth", "revoke-all-sessions"]
+            },
+            "description": "Revoke all active sessions for the current user"
+          }
+        }
+      ]
+    },
+    {
+      "name": "User",
+      "item": [
+        {
+          "name": "Get Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/{{apiVersion}}/user/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "{{apiVersion}}", "user", "profile"]
+            },
+            "description": "Get user profile information"
+          }
+        },
+        {
+          "name": "Update Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Smith\",\n  \"phoneNumber\": \"555-123-4567\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/{{apiVersion}}/user/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "{{apiVersion}}", "user", "profile"]
+            },
+            "description": "Update user profile information"
+          }
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"currentPassword\": \"Password123!\",\n  \"newPassword\": \"NewPassword123!\",\n  \"confirmPassword\": \"NewPassword123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/{{apiVersion}}/user/change-password",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "{{apiVersion}}", "user", "change-password"]
+            },
+            "description": "Change user password"
           }
         }
       ]
@@ -133,9 +268,9 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/accounts",
+              "raw": "{{baseUrl}}/api/{{apiVersion}}/accounts",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "accounts"]
+              "path": ["api", "{{apiVersion}}", "accounts"]
             },
             "description": "Get all accounts for the authenticated user"
           }
@@ -151,9 +286,9 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/accounts/types",
+              "raw": "{{baseUrl}}/api/{{apiVersion}}/accounts/types",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "accounts", "types"]
+              "path": ["api", "{{apiVersion}}", "accounts", "types"]
             },
             "description": "Get available account types"
           }
@@ -169,9 +304,9 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/accounts/1",
+              "raw": "{{baseUrl}}/api/{{apiVersion}}/accounts/1",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "accounts", "1"]
+              "path": ["api", "{{apiVersion}}", "accounts", "1"]
             },
             "description": "Get details for a specific account"
           }
@@ -195,9 +330,9 @@
               "raw": "{\n  \"initialDeposit\": 1000.00\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/accounts/checking",
+              "raw": "{{baseUrl}}/api/{{apiVersion}}/accounts/checking",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "accounts", "checking"]
+              "path": ["api", "{{apiVersion}}", "accounts", "checking"]
             },
             "description": "Create a new checking account"
           }
@@ -221,9 +356,9 @@
               "raw": "{\n  \"initialDeposit\": 5000.00,\n  \"interestRate\": 0.025\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/accounts/savings",
+              "raw": "{{baseUrl}}/api/{{apiVersion}}/accounts/savings",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "accounts", "savings"]
+              "path": ["api", "{{apiVersion}}", "accounts", "savings"]
             },
             "description": "Create a new savings account"
           }
@@ -247,9 +382,9 @@
               "raw": "{\n  \"initialDeposit\": 10000.00,\n  \"interestRate\": 0.035,\n  \"maturityDate\": \"2026-05-03T00:00:00Z\",\n  \"autoRenew\": true\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/accounts/cd",
+              "raw": "{{baseUrl}}/api/{{apiVersion}}/accounts/cd",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "accounts", "cd"]
+              "path": ["api", "{{apiVersion}}", "accounts", "cd"]
             },
             "description": "Create a new certificate of deposit account"
           }
@@ -270,12 +405,12 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"initialDeposit\": 15000.00,\n  \"interestRate\": 0.028,\n  \"transactionsPerMonth\": 6\n}"
+              "raw": "{\n  \"initialDeposit\": 2500.00,\n  \"interestRate\": 0.015\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/accounts/money-market",
+              "raw": "{{baseUrl}}/api/{{apiVersion}}/accounts/money-market",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "accounts", "money-market"]
+              "path": ["api", "{{apiVersion}}", "accounts", "money-market"]
             },
             "description": "Create a new money market account"
           }
@@ -286,57 +421,29 @@
       "name": "Loans",
       "item": [
         {
-          "name": "Get All Loans",
+          "name": "Apply for Mortgage",
           "request": {
-            "method": "GET",
+            "method": "POST",
             "header": [
               {
                 "key": "Authorization",
                 "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/loans",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "loans"]
-            },
-            "description": "Get all loans for the authenticated user"
-          }
-        },
-        {
-          "name": "Get Loan Types",
-          "request": {
-            "method": "GET",
-            "header": [
+              },
               {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
+                "key": "Content-Type",
+                "value": "application/json"
               }
             ],
-            "url": {
-              "raw": "{{baseUrl}}/api/loans/types",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "loans", "types"]
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"principal\": 250000.00,\n  \"interestRate\": 0.045,\n  \"loanTermYears\": 30,\n  \"propertyAddress\": \"123 Main St, Anytown, CA 12345\"\n}"
             },
-            "description": "Get available loan types"
-          }
-        },
-        {
-          "name": "Get Loan by ID",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
             "url": {
-              "raw": "{{baseUrl}}/api/loans/1",
+              "raw": "{{baseUrl}}/api/{{apiVersion}}/loans/mortgage",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "loans", "1"]
+              "path": ["api", "{{apiVersion}}", "loans", "mortgage"]
             },
-            "description": "Get details for a specific loan"
+            "description": "Apply for a mortgage loan"
           }
         },
         {
@@ -355,40 +462,14 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"principal\": 25000.00,\n  \"interestRate\": 0.0399,\n  \"vehicleVin\": \"1HGCM82633A123456\",\n  \"vehicleMake\": \"Honda\",\n  \"vehicleModel\": \"Accord\",\n  \"vehicleYear\": 2024\n}"
+              "raw": "{\n  \"principal\": 30000.00,\n  \"interestRate\": 0.039,\n  \"loanTermMonths\": 60,\n  \"vehicleVIN\": \"1HGCM82633A123456\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/loans/auto",
+              "raw": "{{baseUrl}}/api/{{apiVersion}}/loans/auto",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "loans", "auto"]
+              "path": ["api", "{{apiVersion}}", "loans", "auto"]
             },
             "description": "Apply for an auto loan"
-          }
-        },
-        {
-          "name": "Apply for Mortgage",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"principal\": 350000.00,\n  \"interestRate\": 0.0549,\n  \"propertyAddress\": \"123 Main St, Anytown, CA 12345\",\n  \"propertyValue\": 400000.00,\n  \"loanTermYears\": 30,\n  \"isFixedRate\": true\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/loans/mortgage",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "loans", "mortgage"]
-            },
-            "description": "Apply for a mortgage loan"
           }
         },
         {
@@ -410,9 +491,9 @@
               "raw": "{\n  \"interestRate\": 0.1599,\n  \"creditLimit\": 10000.00,\n  \"annualFee\": 95.00,\n  \"rewardProgram\": \"Cash Back Plus\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/loans/credit-card",
+              "raw": "{{baseUrl}}/api/{{apiVersion}}/loans/credit-card",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "loans", "credit-card"]
+              "path": ["api", "{{apiVersion}}", "loans", "credit-card"]
             },
             "description": "Apply for a credit card"
           }
@@ -436,9 +517,9 @@
               "raw": "{\n  \"principal\": 15000.00,\n  \"interestRate\": 0.0699,\n  \"purpose\": \"Home renovation\",\n  \"loanTermMonths\": 48,\n  \"isSecured\": false\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/loans/personal",
+              "raw": "{{baseUrl}}/api/{{apiVersion}}/loans/personal",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "loans", "personal"]
+              "path": ["api", "{{apiVersion}}", "loans", "personal"]
             },
             "description": "Apply for a personal loan"
           }
@@ -462,9 +543,9 @@
               "raw": "{\n  \"interestRate\": 0.0649,\n  \"propertyAddress\": \"456 Oak St, Anytown, CA 12345\",\n  \"propertyValue\": 500000.00,\n  \"creditLimit\": 100000.00,\n  \"currentEquity\": 200000.00,\n  \"drawPeriodMonths\": 120\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/loans/heloc",
+              "raw": "{{baseUrl}}/api/{{apiVersion}}/loans/heloc",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "loans", "heloc"]
+              "path": ["api", "{{apiVersion}}", "loans", "heloc"]
             },
             "description": "Apply for a home equity line of credit"
           }
@@ -488,9 +569,9 @@
               "raw": "{\n  \"interestRate\": 0.0799,\n  \"creditLimit\": 25000.00,\n  \"drawPeriodMonths\": 60,\n  \"isSecured\": false\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/loans/personal-line-of-credit",
+              "raw": "{{baseUrl}}/api/{{apiVersion}}/loans/personal-line-of-credit",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "loans", "personal-line-of-credit"]
+              "path": ["api", "{{apiVersion}}", "loans", "personal-line-of-credit"]
             },
             "description": "Apply for a personal line of credit"
           }
@@ -511,9 +592,9 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/transactions/history",
+              "raw": "{{baseUrl}}/api/{{apiVersion}}/transactions/history",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "transactions", "history"]
+              "path": ["api", "{{apiVersion}}", "transactions", "history"]
             },
             "description": "Get transaction history for the authenticated user"
           }
@@ -537,9 +618,9 @@
               "raw": "{\n  \"type\": 0,\n  \"sourceAccountId\": \"00000000-0000-0000-0000-000000000000\",\n  \"destinationAccountId\": \"00000000-0000-0000-0000-000000000000\",\n  \"amount\": 100.00\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/transactions",
+              "raw": "{{baseUrl}}/api/{{apiVersion}}/transactions",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "transactions"]
+              "path": ["api", "{{apiVersion}}", "transactions"]
             },
             "description": "Transfer money between two accounts. The type value 0 represents a Transfer transaction."
           }
@@ -563,9 +644,9 @@
               "raw": "{\n  \"type\": 1,\n  \"sourceAccountId\": \"00000000-0000-0000-0000-000000000000\",\n  \"destinationAccountId\": \"00000000-0000-0000-0000-000000000000\",\n  \"amount\": 250.00\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/transactions",
+              "raw": "{{baseUrl}}/api/{{apiVersion}}/transactions",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "transactions"]
+              "path": ["api", "{{apiVersion}}", "transactions"]
             },
             "description": "Make a payment towards a loan from an account. The type value 1 represents a LoanPayment transaction. The sourceAccountId should be a deposit account ID and the destinationAccountId should be a loan ID."
           }
@@ -589,9 +670,9 @@
               "raw": "{\n  \"type\": 2,\n  \"sourceAccountId\": \"00000000-0000-0000-0000-000000000000\",\n  \"destinationAccountId\": \"00000000-0000-0000-0000-000000000000\",\n  \"amount\": 500.00\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/transactions",
+              "raw": "{{baseUrl}}/api/{{apiVersion}}/transactions",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "transactions"]
+              "path": ["api", "{{apiVersion}}", "transactions"]
             },
             "description": "Request an advance from an eligible loan (HELOC, credit card, personal line of credit) to an account. The type value 2 represents a LoanAdvance transaction. The sourceAccountId should be a loan ID and the destinationAccountId should be a deposit account ID."
           }
