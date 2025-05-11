@@ -31,9 +31,9 @@ var applyMigrations = args.Contains("--apply-migrations");
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? 
     throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
-// Add database context with SQL Server instead of SQLite
+// Add database context with PostgreSQL instead of SQL Server
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(connectionString));
+    options.UseNpgsql(connectionString));
 
 // Add Identity
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
@@ -144,7 +144,7 @@ app.UseExceptionHandler(exceptionHandlerApp =>
             string message = "An unexpected error occurred. Please try again later.";
             
             // Check for specific exception types to provide appropriate messages
-            if (feature.Error is Microsoft.Data.SqlClient.SqlException)
+            if (feature.Error is Npgsql.PostgresException)
             {
                 message = "Database service is currently unavailable. Please try again later.";
                 context.Response.StatusCode = StatusCodes.Status503ServiceUnavailable;

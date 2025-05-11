@@ -22,7 +22,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
         base.OnModelCreating(builder);
         
-        // Configure Identity entities for SQL Server
+        // Configure Identity entities for PostgreSQL
         builder.Entity<ApplicationUser>(entity => 
         {
             entity.Property(e => e.Id).HasMaxLength(450);
